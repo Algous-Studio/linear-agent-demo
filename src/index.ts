@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
-import { AgentNotificationWebhookSchema } from './schema'
 import { LinearClient } from '@linear/sdk'
+import OpenAI from 'openai'
 const app = new Hono()
 
 app.get('/', (c) => {
@@ -19,11 +19,17 @@ app.post('/webhook', async (c) => {
       apiKey: process.env.LINEAR_OAUTH_TOKEN
     })
 
+    // Initialize the OpenAI client
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    })
+
     // const me = await linearClient.viewer;
 
     if(webhook.type === 'AppUserNotification') {
       if(webhook.notification.type === "issueAssignedToYou") {
-        const issue = await linearClient.issue(webhook.notification.issueId)
+        const issue = await linearClient.issue(webhook.notification.issueId);
+        const issueDescription = issue.description ?? '';
         
         const comment = await linearClient.createComment({
           issueId: webhook.notification.issueId,
@@ -33,10 +39,30 @@ app.post('/webhook', async (c) => {
         console.log(comment)
       }
       if(webhook.notification.type === "issueCommentMention") {
+        const parentCommentId = webhook.notification.parentCommentId ?? webhook.notification.commentId
+
+        // Get all comments in this thread
+        const comments = await linearClient.comments({
+          filter: {
+            parent: {
+              id: {
+                eq: parentCommentId
+              }
+            }
+          }
+        })
+
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: comments.nodes.map((comment) => ({ role: "user", content: comment.body, name: comment.userId }))
+        })
+
+        const responseContent = response.choices[0].message.content;
+
         const comment = await linearClient.createComment({
           issueId: webhook.notification.issueId,
-          body: `Hey! Thanks for tagging me. I'll be helping you out with this issue.`,
-          parentId: webhook.notification.commentId
+          body: responseContent,
+          parentId: parentCommentId
         })
         console.log(comment)
       }
