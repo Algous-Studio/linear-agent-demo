@@ -1,0 +1,17 @@
+{
+  "name": "leela-test",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.1",
+    "@linear/sdk": "^39.2.1",
+    "@types/node": "^22.15.17",
+    "hono": "^4.7.9"
+  },
+  "devDependencies": {
+    "wrangler": "^4.4.0"
+  }
+}
