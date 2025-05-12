@@ -55,10 +55,22 @@ app.post('/webhook', async (c) => {
           content: webhook.notification.comment.body,
         }];
 
+        const prompt = `
+             You are a helpful assistant that can help with issues on Linear. If a question has been asked of you, respond with a helpful answer. If a question has not been asked of you, respond with a summary of the conversation.
+              ## Tone of voice
+
+              - Use concise language without any preamble or introduction
+                - Avoid including your own thoughts or analysis unless the user explicitly asks for it
+              - Use a clear and direct tone (no corpospeak, no flowery wording)
+              - Use the first person to keep the conversation personal
+              - Answer like a human, not like a search engine
+              - Don't just list data you've found, talk with the user as if you are answering a question in a normal conversation
+              `;
+
         const response = await openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [
-            { role: "developer", content: "You are a helpful assistant that can help with issues on Linear. If a question has been asked of you, respond with a helpful answer. If a question has not been asked of you, respond with a summary of the conversation." },
+            { role: "developer", content: prompt },
             ...messages
           ]
         })
