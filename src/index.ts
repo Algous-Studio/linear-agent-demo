@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { LinearClient } from '@linear/sdk'
 import OpenAI from 'openai'
+import { ChatCompletionMessageParam } from 'openai/resources/chat/completions.mjs'
 const app = new Hono()
 
 app.get('/', (c) => {
@@ -39,10 +40,10 @@ app.post('/webhook', async (c) => {
         console.log(comment)
       }
       if(webhook.notification.type === "issueCommentMention") {
-        const parentCommentId = webhook.notification.parentCommentId ?? webhook.notification.commentId
+        const parentCommentId = webhook.notification.parentCommentId 
 
         // Get all comments in this thread
-        const comments = await linearClient.comments({
+        const commentsInThread = parentCommentId ? await linearClient.comments({
           filter: {
             parent: {
               id: {
@@ -50,11 +51,19 @@ app.post('/webhook', async (c) => {
               }
             }
           }
-        })
+        }) : undefined;
 
+        const messages: ChatCompletionMessageParam[] = commentsInThread?.nodes.map((comment) => ({ role: "user", content: comment.body, name: comment.userId || "" })) ?? [{
+          role: "user",
+          content: webhook.notification.comment.body,
+          name: webhook.notification.comment.userId || ""
+        }];
         const response = await openai.chat.completions.create({
           model: "gpt-4o-mini",
-          messages: comments.nodes.map((comment) => ({ role: "user", content: comment.body, name: comment.userId }))
+          messages: [
+            { role: "system", content: "You are a helpful assistant that can help with issues on Linear. If a question has been asked of you, respond with a helpful answer. If a question has not been asked of you, respond with a summary of the conversation.", name: "assistant" },
+            ...messages
+          ]
         })
 
         const responseContent = response.choices[0].message.content;
@@ -62,7 +71,7 @@ app.post('/webhook', async (c) => {
         const comment = await linearClient.createComment({
           issueId: webhook.notification.issueId,
           body: responseContent,
-          parentId: parentCommentId
+          parentId: parentCommentId ?? webhook.notification.commentId
         })
         console.log(comment)
       }
