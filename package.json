@@ -3,16 +3,23 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
   },
   "dependencies": {
     "@cloudflare/workers-oauth-provider": "^0.0.5",
     "@hono/node-server": "^1.14.1",
     "@linear/sdk": "^39.2.1",
     "@types/node": "^22.15.17",
-    "hono": "^4.7.9"
+    "hono": "^4.7.9",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^9.26.0",
+    "eslint-config-prettier": "^10.1.5",
     "wrangler": "^4.4.0"
   }
 }
