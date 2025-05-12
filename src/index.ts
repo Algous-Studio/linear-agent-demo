@@ -14,7 +14,7 @@ app.post('/webhook', async (c) => {
     // Parse the incoming JSON payload
     const payload = await c.req.text();
     const webhook = JSON.parse(payload);
-    console.log(webhook)
+    console.warn('Received webhook:', webhook);
 
     const linearClient = new LinearClient({
       apiKey: process.env.LINEAR_OAUTH_TOKEN
@@ -25,21 +25,18 @@ app.post('/webhook', async (c) => {
       apiKey: process.env.OPENAI_API_KEY
     })
 
-    // const me = await linearClient.viewer;
+    const me = await linearClient.viewer;
 
     if(webhook.type === 'AppUserNotification') {
       if(webhook.notification.type === "issueAssignedToYou") {
-        const issue = await linearClient.issue(webhook.notification.issueId);
-        const issueDescription = issue.description ?? '';
-        
         const comment = await linearClient.createComment({
           issueId: webhook.notification.issueId,
           body: `Hey! I'll be helping you out with this issue.`,
         })
 
-        console.log(comment)
+        console.warn('Created comment:', comment)
       }
-      if(webhook.notification.type === "issueCommentMention") {
+      if(webhook.notification.type === "issueCommentMention" || (webhook.notification.type === "issueNewComment" && webhook.notification.parentComment?.userId === me.id)) {
         const parentCommentId = webhook.notification.parentCommentId 
 
         // Get all comments in this thread
@@ -53,15 +50,16 @@ app.post('/webhook', async (c) => {
           }
         }) : undefined;
 
-        const messages: ChatCompletionMessageParam[] = commentsInThread?.nodes.map((comment) => ({ role: "user", content: comment.body, name: comment.userId || "" })) ?? [{
-          role: "user",
+        const messages: ChatCompletionMessageParam[] = commentsInThread?.nodes.map((comment) => ({ role: comment.userId === me.id ? "assistant" : "user", content: comment.body, name: comment.userId || "" })) ?? [{
+          role: webhook.notification.comment.userId === me.id ? "assistant" : "user",
           content: webhook.notification.comment.body,
           name: webhook.notification.comment.userId || ""
         }];
+
         const response = await openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [
-            { role: "system", content: "You are a helpful assistant that can help with issues on Linear. If a question has been asked of you, respond with a helpful answer. If a question has not been asked of you, respond with a summary of the conversation.", name: "assistant" },
+            { role: "developer", content: "You are a helpful assistant that can help with issues on Linear. If a question has been asked of you, respond with a helpful answer. If a question has not been asked of you, respond with a summary of the conversation.", name: "assistant" },
             ...messages
           ]
         })
@@ -73,7 +71,7 @@ app.post('/webhook', async (c) => {
           body: responseContent,
           parentId: parentCommentId ?? webhook.notification.commentId
         })
-        console.log(comment)
+        console.warn('Created comment:', comment)
       }
     }
     
@@ -84,8 +82,7 @@ app.post('/webhook', async (c) => {
     }, 200)
   } catch (error) {
     // Handle any errors in processing the webhook
-    console.error(error)
-    c.text('Error processing webhook:', error as any)
+    console.error('Error processing webhook:', error)
     return c.json({
       status: 'error',
       message: 'Failed to process webhook'
