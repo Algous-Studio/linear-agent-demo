@@ -47,7 +47,9 @@ app.post('/webhook', async (c) => {
           body: commentBody,
         });
       }
-      if (webhook.notification.type === "issueCommentMention") {
+
+      // Handle comments that mention the app user, or that are in threads that the app user is a participant in
+      if (webhook.notification.type === "issueCommentMention" || (webhook.notification.type === "issueNewComment" && webhook.notification.parentCommentId)) {
         const parentCommentId = webhook.notification.parentCommentId
 
         // Get all comments in this thread
