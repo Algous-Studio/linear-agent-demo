@@ -12,3 +12,6 @@ npm run deploy
 ```txt
 npm run cf-typegen
 ```
+
+## In Linear
+- Create an OAuth app with your CF worker's URL, and the `/webhook` route configured for webhooks
