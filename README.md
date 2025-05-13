@@ -26,7 +26,7 @@ npm run cf-typegen
 
 # Usage
 ## Endpoints
-- `GET /oauth/authorize` triggers the OAuth flow with Linear and generates an `actor=app` token for your server. This token is used to interact with the Linear SDK when responding to OAuth app webhooks.
+- `GET /oauth/authorize` triggers the OAuth flow with Linear and generates an `actor=app` token for your app. This token is used to interact with the Linear SDK when responding to OAuth app webhooks.
 - `GET /oauth/revoke` revokes your stored OAuth token
 - `POST /webhook` is the endpoint at which your OAuth app will receive webhooks
 
