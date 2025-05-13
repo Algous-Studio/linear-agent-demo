@@ -1,5 +1,5 @@
 {
-  "name": "leela-test",
+  "name": "linear-agent-demo",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",

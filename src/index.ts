@@ -3,7 +3,7 @@ import { LinearClient } from '@linear/sdk'
 import OpenAI from 'openai'
 import { ChatCompletionMessageParam } from 'openai/resources/chat/completions.mjs'
 
-const app = new Hono()
+const app = new Hono<{ Bindings: CloudflareBindings }>()
 
 app.get('/', (c) => {
   return c.text('Hello!')
@@ -17,12 +17,12 @@ app.post('/webhook', async (c) => {
     console.log('Received webhook:', webhook);
 
     const linearClient = new LinearClient({
-      apiKey: process.env.LINEAR_OAUTH_TOKEN
+      apiKey: c.env.LINEAR_OAUTH_TOKEN
     })
     const me = await linearClient.viewer;
 
     const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
+      apiKey: c.env.OPENAI_API_KEY
     })
 
     if (webhook.type === 'AppUserNotification') {
