@@ -3,6 +3,7 @@ import { LinearClient } from '@linear/sdk'
 import OpenAI from 'openai'
 import { ChatCompletionMessageParam } from 'openai/resources/chat/completions.mjs'
 import { OAuth } from './oauth'
+import { createHmac } from 'crypto'
 
 interface CloudflareBindings {
   LINEAR_TOKENS: KVNamespace;
@@ -10,6 +11,7 @@ interface CloudflareBindings {
   LINEAR_CLIENT_ID: string;
   LINEAR_CLIENT_SECRET: string;
   LINEAR_CALLBACK_URL: string;
+  LINEAR_WEBHOOK_SECRET: string;
 }
 
 const app = new Hono<{ Bindings: CloudflareBindings }>()
@@ -117,6 +119,12 @@ app.post('/webhook', async (c) => {
   try {
     const payload = await c.req.text();
     const webhook = JSON.parse(payload);
+
+    // Verify signature
+    const signature = createHmac("sha256", c.env.LINEAR_WEBHOOK_SECRET).update(payload).digest("hex");
+    if (signature !== c.req.header('linear-signature')) {
+      return c.json({ error: 'Invalid signature' }, 400)
+    }
 
     // eslint-disable-next-line no-console
     console.log('Received webhook', webhook);
