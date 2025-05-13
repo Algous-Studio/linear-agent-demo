@@ -10,7 +10,6 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@cloudflare/workers-oauth-provider": "^0.0.5",
     "@hono/node-server": "^1.14.1",
     "@linear/sdk": "^39.2.1",
     "@types/node": "^22.15.17",
