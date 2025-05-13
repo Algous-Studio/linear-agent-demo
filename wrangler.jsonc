@@ -6,6 +6,13 @@
   "compatibility_flags": [
     "nodejs_compat"
   ],
+  "kv_namespaces": [
+    {
+      "binding": "LINEAR_TOKENS",
+      "id": "0f9ee054d26145c995e20c9bd09a72a6",
+      "preview_id": "4d18782219a245cc91a2a0546febde01"
+    },
+  ],
   "observability": {
     "enabled": true,
   }
