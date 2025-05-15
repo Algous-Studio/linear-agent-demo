@@ -1,34 +1,48 @@
-# Setup and deployment
+# Linear Agent Demo
 
-## Linear
-- Create an OAuth app with your CF worker's `/oauth/callback` route configured as the callback URL, and the `/webhook` route configured as the webhook URL
+This is an example framework for getting started building an agent on Cloudflare that can respond to actions inside of Linear.
 
-## Cloudflare
+## Getting started
 
-Make sure you configure the necessary [environment variables](https://developers.cloudflare.com/workers/configuration/environment-variables/) in each environment.
+1. Clone the repo directly & install dependencies: `npm install`
 
-### Local development
+## Production
+
+1. Deploy to Cloudflare `npm run deploy`
+1. Generate a [OpenAI API key](https://platform.openai.com/settings/organization/api-keys) and note value.
+1. Create a new [Linear OAuth app](https://linear.app/settings/api/applications/new) (admin role required)
+    - For the Authorization callback URL, specify `https://linear-agent-demo.<your-subdomain>.workers.dev/oauth/callback`
+    - Enable webhooks and the category `App notifications`
+    - Note your Client ID, Client Secret, and Webhook Secret
+    - Set secrets via Wrangler
+
+```
+wrangler secret put LINEAR_CLIENT_ID
+wrangler secret put LINEAR_CLIENT_SECRET
+wrangler secret put LINEAR_WEBHOOK_SECRET
+wrangler secret put OPENAI_API_KEY
+```
+
+4. Set up a KV namespace
+    - Create the KV namespace: `wrangler kv:namespace create "LINEAR_TOKENS"`
+    - Update the `wrangler.jsonc` file with the KV ID
+
+
+
+## Development
+
+Create a `.dev.vars` file in your project root with with the secrets. Note that to receive webhooks from Linear you will need to use a tunnel such as ngrok.
+
 ```txt
 npm install
 npm run dev
-```
-
-### CF Worker
-```txt
-npm run deploy
-```
-
-[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
-
-```txt
-npm run cf-typegen
 ```
 
 # Usage
 ## Endpoints
 - `GET /oauth/authorize` triggers the OAuth flow with Linear and generates an `actor=app` token for your app. This token is used to interact with the Linear SDK when responding to OAuth app webhooks.
 - `GET /oauth/revoke` revokes your stored OAuth token
-- `POST /webhook` is the endpoint at which your OAuth app will receive webhooks
+- `POST /webhook` is the endpoint at which your OAuth app will receive webhooks from Linear.
 
 ## Suggested flow
 - Visit https://my-domain/oauth/authorize in a browser to go through the OAuth flow

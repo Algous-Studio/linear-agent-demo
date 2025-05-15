@@ -10,7 +10,7 @@ interface CloudflareBindings {
   OPENAI_API_KEY: string;
   LINEAR_CLIENT_ID: string;
   LINEAR_CLIENT_SECRET: string;
-  LINEAR_CALLBACK_URL: string;
+  URL: string;
   LINEAR_WEBHOOK_SECRET: string;
 }
 
@@ -26,7 +26,7 @@ app.get('/oauth/authorize', async (c) => {
   const state = OAuth.generateState();
   await c.env.LINEAR_TOKENS.put('oauth_state', state)
 
-  const authUrl = OAuth.generateAuthorizationUrl(c.env.LINEAR_CLIENT_ID, c.env.LINEAR_CALLBACK_URL, state)
+  const authUrl = OAuth.generateAuthorizationUrl(c.env.LINEAR_CLIENT_ID, `${c.env.URL}/oauth/callback`, state)
   return c.redirect(authUrl)
 })
 
@@ -51,7 +51,7 @@ app.get('/oauth/callback', async (c) => {
       return c.json({ error: 'Invalid state parameter' }, 400)
     }
 
-    const tokenResponse = await OAuth.exchangeCodeForToken(code, c.env.LINEAR_CLIENT_ID, c.env.LINEAR_CLIENT_SECRET, c.env.LINEAR_CALLBACK_URL);
+    const tokenResponse = await OAuth.exchangeCodeForToken(code, c.env.LINEAR_CLIENT_ID, c.env.LINEAR_CLIENT_SECRET, `${c.env.URL}/oauth/callback`);
     const accessToken = tokenResponse.access_token;
 
     // Store the access token in KV
