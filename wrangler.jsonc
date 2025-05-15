@@ -9,10 +9,14 @@
   "kv_namespaces": [
     {
       "binding": "LINEAR_TOKENS",
-      "id": "<ADD KEY HERE>"
+      "id": "<your-kv-namespace-id>",
     },
   ],
   "observability": {
     "enabled": true,
+  },
+  "vars": {
+    "URL": "https://linear-agent-demo.<your-subdomain>.workers.dev",
+    "LINEAR_CLIENT_ID": "<your-linear-client-id>",
   }
 }

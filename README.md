@@ -25,8 +25,9 @@ wrangler secret put OPENAI_API_KEY
 
 4. Set up a KV namespace
     - Create the KV namespace: `wrangler kv:namespace create "LINEAR_TOKENS"`
-    - Update the `wrangler.jsonc` file with the KV ID
-
+    - Note the ID
+5. Update the `wrangler.jsonc` file with the KV ID, Linear Client ID, and URL
+6. Deploy with `npm run deploy`
 
 
 ## Development
