@@ -9,7 +9,7 @@ oauth.get('/authorize', async (c) => {
     const state = OAuthHelper.generateState();
     await c.env.LINEAR_TOKENS.put('oauth_state', state)
 
-    const authUrl = OAuthHelper.generateAuthorizationUrl(c.env.LINEAR_CLIENT_ID, c.env.LINEAR_CALLBACK_URL, state)
+    const authUrl = OAuthHelper.generateAuthorizationUrl(c.env.LINEAR_CLIENT_ID, `${c.env.URL}/oauth/callback`, state)
     return c.redirect(authUrl)
 });
 
@@ -34,7 +34,7 @@ oauth.get('/callback', async (c) => {
             return c.json({ error: 'Invalid state parameter' }, 400)
         }
 
-        const tokenResponse = await OAuthHelper.exchangeCodeForToken(code, c.env.LINEAR_CLIENT_ID, c.env.LINEAR_CLIENT_SECRET, c.env.LINEAR_CALLBACK_URL);
+        const tokenResponse = await OAuthHelper.exchangeCodeForToken(code, c.env.LINEAR_CLIENT_ID, c.env.LINEAR_CLIENT_SECRET, `${c.env.URL}/oauth/callback`);
         const accessToken = tokenResponse.access_token;
 
         // Store the access token in KV
