@@ -17,6 +17,13 @@ export class Agent {
         });
     }
 
+    /**
+     * Handle a new comment that the agent should respond to.
+     * 
+     * @param inputComment The comment to respond to
+     * @param parentCommentId The ID of the parent comment of the thread, if this comment is in a thread
+     * @returns A promise that resolves when the response comment has been created
+     */
     async handleComment(inputComment: NotificationComment, parentCommentId?: string): Promise<void> {
         // Get all comments in this thread to provide context if available
         const commentsInThread = parentCommentId ? await this.linear.comments({
@@ -44,6 +51,12 @@ export class Agent {
         })
     }
 
+    /**
+     * Handle an issue that the agent has been assigned to or mentioned in the description of.
+     * 
+     * @param inputIssue The issue that the agent is assigned to or mentioned in the description of
+     * @returns A promise that resolves when the response comment has been created
+     */
     async handleIssueAssignedToYou(inputIssue: NotificationIssue): Promise<void> {
         const issue = await this.linear.issue(inputIssue.id);
         const me = await this.getMe();
@@ -67,6 +80,11 @@ export class Agent {
         });
     }
 
+    /**
+     * Get the user that is currently authenticated with the Linear API.
+     * 
+     * @returns A promise that resolves with the user
+     */
     private async getMe(): Promise<User> {
         if (!this.me) {
             this.me = await this.linear.viewer;
@@ -75,6 +93,12 @@ export class Agent {
         return this.me;
     }
 
+    /**
+     * Get a chat completion from the OpenAI API.
+     * 
+     * @param messages The messages to pass to the OpenAI API
+     * @returns A promise that resolves with the chat completion
+     */
     private async getChatCompletion(messages: ChatCompletionMessageParam[]): Promise<string | null> {
         const prompt = `
             You are a helpful assistant that can help with issues on Linear. 

@@ -88,7 +88,6 @@ oauth.get('/revoke', async (c) => {
             message: 'Access token has been revoked in Linear and removed from storage.'
         })
     } catch (error) {
-        console.error('Error revoking token:', error)
         return c.json({
             status: 'error',
             message: 'Failed to revoke access token',

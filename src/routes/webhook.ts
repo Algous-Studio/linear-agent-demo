@@ -24,8 +24,6 @@ webhook.post('/', async (c) => {
         }
 
         const webhook = rawWebhook as AgentNotificationWebhook;
-        // eslint-disable-next-line no-console
-        console.log('Received webhook', webhook);
 
         // Get the access token from KV
         const linearAccessToken = await c.env.LINEAR_TOKENS.get('access_token')
@@ -60,9 +58,9 @@ webhook.post('/', async (c) => {
             status: 'success',
             message: 'Webhook received successfully'
         }, 200)
-    } catch (error) {
-        // Handle any errors in processing the webhook
-        console.error('Error processing webhook:', error)
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
         return c.json({
             status: 'error',
             message: 'Failed to process webhook'
