@@ -9,7 +9,7 @@ interface TokenResponse {
     scope?: string;
 }
 
-export class OAuth {
+export class OAuthHelper {
     static generateAuthorizationUrl(clientId: string, redirectUri: string, state: string, scopes: string[] = ["read", "write", "app:assignable", "app:mentionable"]): string {
         const url = new URL('https://linear.app/oauth/authorize');
         url.searchParams.set('client_id', clientId);
