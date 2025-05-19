@@ -1,15 +1,15 @@
 import { Hono } from "hono";
-import { OAuth } from "../oauth";
+import { OAuthHelper } from "../lib/oauthHelper";
 
 const oauth = new Hono<{ Bindings: CloudflareBindings }>();
 
 // OAuth authorization endpoint
 oauth.get('/authorize', async (c) => {
     // Generate a new state for this OAuth flow and store it in KV
-    const state = OAuth.generateState();
+    const state = OAuthHelper.generateState();
     await c.env.LINEAR_TOKENS.put('oauth_state', state)
 
-    const authUrl = OAuth.generateAuthorizationUrl(c.env.LINEAR_CLIENT_ID, c.env.LINEAR_CALLBACK_URL, state)
+    const authUrl = OAuthHelper.generateAuthorizationUrl(c.env.LINEAR_CLIENT_ID, c.env.LINEAR_CALLBACK_URL, state)
     return c.redirect(authUrl)
 });
 
@@ -34,7 +34,7 @@ oauth.get('/callback', async (c) => {
             return c.json({ error: 'Invalid state parameter' }, 400)
         }
 
-        const tokenResponse = await OAuth.exchangeCodeForToken(code, c.env.LINEAR_CLIENT_ID, c.env.LINEAR_CLIENT_SECRET, c.env.LINEAR_CALLBACK_URL);
+        const tokenResponse = await OAuthHelper.exchangeCodeForToken(code, c.env.LINEAR_CLIENT_ID, c.env.LINEAR_CLIENT_SECRET, c.env.LINEAR_CALLBACK_URL);
         const accessToken = tokenResponse.access_token;
 
         // Store the access token in KV
