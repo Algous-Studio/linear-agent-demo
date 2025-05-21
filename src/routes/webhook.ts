@@ -48,7 +48,7 @@ webhook.post('/', async (c) => {
                 throw new Error('No comment found in webhook')
             }
 
-            await agent.handleComment(webhook.notification.comment, webhook.notification.parentCommentId);
+            await agent.handleComment(webhook.notification.comment, webhook.notification.type, webhook.notification.parentCommentId);
         }
 
         // Return a success response

@@ -1,7 +1,7 @@
 import { LinearClient, User } from "@linear/sdk";
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions/completions.mjs";
-import { NotificationComment, NotificationIssue } from "../types/webhooks";
+import { NotificationComment, NotificationIssue, NotificationType } from "../types/webhooks";
 
 export class Agent {
     private openai: OpenAI;
@@ -21,10 +21,11 @@ export class Agent {
      * Handle a new comment that the agent should respond to.
      * 
      * @param inputComment The comment to respond to
+     * @param notificationType The type of notification that triggered this function
      * @param parentCommentId The ID of the parent comment of the thread, if this comment is in a thread
      * @returns A promise that resolves when the response comment has been created
      */
-    async handleComment(inputComment: NotificationComment, parentCommentId?: string): Promise<void> {
+    async handleComment(inputComment: NotificationComment, notificationType: NotificationType, parentCommentId?: string): Promise<void> {
         // Get all comments in this thread to provide context if available
         const commentsInThread = parentCommentId ? await this.linear.comments({
             filter: {
@@ -36,6 +37,10 @@ export class Agent {
             }
         }) : undefined;
         const me = await this.getMe();
+        if(notificationType === NotificationType.issueNewComment && !commentsInThread?.nodes.some((comment) => comment.userId === me.id)) {
+            // Make sure the agent is a participant in the thread if this wasn't a notification for a mention. If the agent is the issue assignee, they get notified of all new comments and threads.
+            return;
+        }
 
         const messages: ChatCompletionMessageParam[] = commentsInThread?.nodes.map((comment) => ({ role: comment.userId === me.id ? "assistant" : "user", content: comment.body.replace(`@${me.name}`, '').replace(`@${me.displayName}`, '') })) ?? [{
             role: inputComment.userId === me.id ? "assistant" : "user",
