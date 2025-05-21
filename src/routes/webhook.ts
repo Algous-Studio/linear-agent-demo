@@ -33,24 +33,22 @@ webhook.post('/', async (c) => {
 
         const agent = new Agent(c.env.OPENAI_API_KEY, linearAccessToken);
 
-        if (webhook.type === 'AppUserNotification') {
-            // Handle the agent being assigned to an issue or mentioned in the description of an issue
-            if (webhook.notification.type === NotificationType.issueAssignedToYou || webhook.notification.type === NotificationType.issueMention) {
-                if (!webhook.notification.issue) {
-                    throw new Error('No issue found in webhook')
-                }
-
-                await agent.handleIssueAssignedToYou(webhook.notification.issue);
+        // Handle the agent being assigned to an issue or mentioned in the description of an issue
+        if (webhook.notification.type === NotificationType.issueAssignedToYou || webhook.notification.type === NotificationType.issueMention) {
+            if (!webhook.notification.issue) {
+                throw new Error('No issue found in webhook')
             }
 
-            // Handle a new comment that either mentions the agent or is in a thread that the agent is already a participant in
-            else if (webhook.notification.type === NotificationType.issueCommentMention || (webhook.notification.type === NotificationType.issueNewComment && webhook.notification.parentCommentId)) {
-                if (!webhook.notification.comment) {
-                    throw new Error('No comment found in webhook')
-                }
+            await agent.handleIssueAssignedToYou(webhook.notification.issue);
+        }
 
-                await agent.handleComment(webhook.notification.comment, webhook.notification.parentCommentId);
+        // Handle a new comment that either mentions the agent or is in a thread that the agent is already a participant in
+        else if (webhook.notification.type === NotificationType.issueCommentMention || (webhook.notification.type === NotificationType.issueNewComment && webhook.notification.parentCommentId)) {
+            if (!webhook.notification.comment) {
+                throw new Error('No comment found in webhook')
             }
+
+            await agent.handleComment(webhook.notification.comment, webhook.notification.parentCommentId);
         }
 
         // Return a success response
