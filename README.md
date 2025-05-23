@@ -46,6 +46,6 @@ npm run dev
 - `POST /webhook` is the endpoint at which your OAuth app will receive webhooks from Linear.
 
 ## Suggested flow
-- Visit https://my-domain/oauth/authorize in a browser to go through the OAuth flow
+- Visit https://linear-agent-demo.<your-subdomain>.workers.dev/oauth/authorize in a browser to go through the OAuth flow
 - Once you've successfully completed OAuth, your app will begin receiving the webhooks it requested in Linear
-- We've included a few simple interactions involving an agent in response to specific webhooks to get you started
+- We've included a few simple interactions involving an agent in response to specific mention and assignment notification webhooks to get you started
