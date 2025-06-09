@@ -14,7 +14,6 @@
     "@linear/sdk": "^39.2.1",
     "@types/node": "^22.15.17",
     "hono": "^4.7.9",
-    "openai": "^4.98.0",
     "zod": "^3.24.4"
   },
   "devDependencies": {

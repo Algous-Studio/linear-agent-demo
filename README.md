@@ -9,7 +9,6 @@ This is an example framework for getting started building an agent on Cloudflare
 ## Production
 
 1. Deploy to Cloudflare `npm run deploy`
-1. Generate a [OpenAI API key](https://platform.openai.com/settings/organization/api-keys) and note value.
 1. Create a new [Linear OAuth app](https://linear.app/settings/api/applications/new) (admin role required)
     - For the Authorization callback URL, specify `https://linear-agent-demo.<your-subdomain>.workers.dev/oauth/callback`
     - Enable webhooks and the category `App notifications`
@@ -20,8 +19,12 @@ This is an example framework for getting started building an agent on Cloudflare
 wrangler secret put LINEAR_CLIENT_ID
 wrangler secret put LINEAR_CLIENT_SECRET
 wrangler secret put LINEAR_WEBHOOK_SECRET
-wrangler secret put OPENAI_API_KEY
+wrangler secret put N8N_WEBHOOK_URL
+wrangler secret put N8N_WEBHOOK_SECRET
 ```
+
+The worker forwards gathered conversation context to an n8n workflow instead of
+directly calling OpenAI. The workflow's response is posted back to Linear.
 
 4. Set up a KV namespace
     - Create the KV namespace: `wrangler kv:namespace create "LINEAR_TOKENS"`
