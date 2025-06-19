@@ -4,20 +4,19 @@
 declare namespace Cloudflare {
 	interface Env {
 		LINEAR_TOKENS: KVNamespace;
-               LINEAR_CLIENT_ID: string;
-               LINEAR_CLIENT_SECRET: string;
-               URL: string;
-               LINEAR_WEBHOOK_SECRET: string;
-               N8N_WEBHOOK_URL: string;
-               N8N_WEBHOOK_SECRET: string;
-        }
+		OPENAI_API_KEY: string;
+		LINEAR_CLIENT_ID: string;
+		LINEAR_CLIENT_SECRET: string;
+		URL: string;
+		LINEAR_WEBHOOK_SECRET: string;
+	}
 }
 interface CloudflareBindings extends Cloudflare.Env {}
 type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-        interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "LINEAR_CLIENT_ID" | "LINEAR_CLIENT_SECRET" | "URL" | "LINEAR_WEBHOOK_SECRET" | "N8N_WEBHOOK_URL" | "N8N_WEBHOOK_SECRET">> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "OPENAI_API_KEY" | "LINEAR_CLIENT_ID" | "LINEAR_CLIENT_SECRET" | "URL" | "LINEAR_WEBHOOK_SECRET">> {}
 }
 
 // Begin runtime types
